@@ -1,7 +1,7 @@
 # encoding: utf-8
 import json
 
-from flask import Flask,make_response
+from flask import Flask, make_response, jsonify
 
 from fisher_classwork.helper import is_key_or_isbn
 from fisher_classwork.yushu_book import YuShuBook
@@ -23,7 +23,10 @@ def search(q,page):
         result = YuShuBook.get_url_by_isbn(q)
     else:
         result = YuShuBook.get_url_by_name(q)
-    return json.dumps(result), 200, {'content-type':'application/json'}
+        # json.dumps 序列化 dict
+        # 使用 flask 自带的jsonify来替代下面一长串代码
+    return jsonify(result)
+    # return json.dumps(result), 200, {'content-type':'application/json'}
 
 
 
