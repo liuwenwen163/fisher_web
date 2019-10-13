@@ -4,6 +4,11 @@ from flask import Flask
 
 def create_app():
     app = Flask(__name__)
-    print('初始化app时候的内存地址：' + str(id(app)))
     app.config.from_object('config')
+    register_blueprint(app)
     return app
+
+
+def register_blueprint(app):
+    from app.web.book import web
+    app.register_blueprint(web)
