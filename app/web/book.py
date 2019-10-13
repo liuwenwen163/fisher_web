@@ -7,7 +7,7 @@ from yushu_book import YuShuBook
 
 __author__ = "yc"
 
-
+print('注册路由模块时的app地址：' + str(id(app)))
 @app.route('/book/search/<q>/<page>')
 def search(q,page):
     """
