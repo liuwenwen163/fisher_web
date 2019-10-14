@@ -1,6 +1,7 @@
 # encoding: utf-8
-from flask import jsonify
+from flask import jsonify,request
 
+from app.forms.book import SearchForm
 from helper import is_key_or_isbn
 from yushu_book import YuShuBook
 from . import web
@@ -8,15 +9,23 @@ from . import web
 __author__ = "yc"
 
 
-@web.route('/book/search/<q>/<page>')
-def search(q,page):
+# @web.route('/book/search/<q>/<page>')
+@web.route('/book/search')
+def search():
     """
-    q: 普通关键字 或 isbn
-    page
-    """
-    key_or_isbn = is_key_or_isbn(q)
-    if key_or_isbn == "isbn":
-        result = YuShuBook.get_url_by_isbn(q)
+        q: 普通关键字 或 isbn
+        page
+        """
+    form = SearchForm(request.args)
+    if form.validate():
+        q = form.q.data.strip()  # 去掉page前后的空格
+        page = form.page.data
+        key_or_isbn = is_key_or_isbn(q)
+        if key_or_isbn == "isbn":
+            result = YuShuBook.get_url_by_isbn(q)
+        else:
+            result = YuShuBook.get_url_by_name(q)
+        return jsonify(result)
     else:
-        result = YuShuBook.get_url_by_name(q)
-    return jsonify(result)
+        # flask的视图函数没有return语句是会报错的
+        return jsonify({'msg':'参数校验失败'})
