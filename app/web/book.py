@@ -24,8 +24,8 @@ def search():
         if key_or_isbn == "isbn":
             result = YuShuBook.get_url_by_isbn(q)
         else:
-            result = YuShuBook.get_url_by_name(q)
+            result = YuShuBook.get_url_by_name(q, page)
         return jsonify(result)
     else:
         # flask的视图函数没有return语句是会报错的
-        return jsonify({'msg':'参数校验失败'})
+        return jsonify(form.errors)

@@ -1,6 +1,7 @@
 # encoding: utf-8
 from fisher_classwork.httper import HTTP
-
+from flask import current_app
+# current_app代表当前对象，这样就可以调用当前对象config文件里的参数了
 
 class YuShuBook:
     isbn_url = "http://t.yushu.im/v2/book/isbn/{}"
@@ -13,8 +14,11 @@ class YuShuBook:
         return result
 
     @classmethod
-    def get_url_by_name(cls,keyword,count=15,start=0):
-        url = cls.keyword_url.format(keyword,count,start)
+    def get_url_by_name(cls,keyword,page=1):
+        url = cls.keyword_url.format(keyword, current_app.config['PER_PAGE'], cls.calculate_start(page))
         result = HTTP.get(url)
         return result
 
+    @staticmethod
+    def calculate_start(page):
+        return (page-1)*current_app.config['PER_PAGE']
