@@ -1,5 +1,5 @@
 # encoding: utf-8
-from fisher_classwork.httper import HTTP
+from app.libs.httper import HTTP
 from flask import current_app
 # current_app代表当前对象，这样就可以调用当前对象config文件里的参数了
 

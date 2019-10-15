@@ -1,4 +1,7 @@
 # encoding: utf-8
+"""
+验证url传入参数的有效性
+"""
 from wtforms import Form, StringField, IntegerField
 from wtforms.validators import Length, NumberRange, DataRequired
 

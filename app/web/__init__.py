@@ -1,4 +1,7 @@
 # encoding: utf-8
+"""
+存放所有的视图函数
+"""
 from flask import Blueprint
 
 web = Blueprint("web", __name__)
