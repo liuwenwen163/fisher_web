@@ -4,7 +4,7 @@ from flask import jsonify,request
 from app.forms.book import SearchForm
 from app.libs.helper import is_key_or_isbn
 from app.spider.yushu_book import YuShuBook
-from app.view_models.book import BookViewModel
+from app.view_models.book import BookCollection
 from . import web
 
 __author__ = "yc"
@@ -16,19 +16,20 @@ def search():
     """
         q: 普通关键字 或 isbn
         page
-        """
+    """
     form = SearchForm(request.args)
+    books = BookCollection()
     if form.validate():
         q = form.q.data.strip()  # 去掉page前后的空格
         page = form.page.data
         key_or_isbn = is_key_or_isbn(q)
+        yushu_book = YuShuBook()
         if key_or_isbn == "isbn":
-            result = YuShuBook.search_by_isbn(q)
-            result = BookViewModel.package_single(result, q)
+            yushu_book.search_by_isbn(q)
         else:
-            result = YuShuBook.search_by_keyword(q, page)
-            result = BookViewModel.package_collection(result, q)
-        return jsonify(result)
+            yushu_book.search_by_keyword(q, page)
+        books.fill(yushu_book, q)
+        return jsonify(books)
     else:
         # flask的视图函数没有return语句是会报错的
         return jsonify(form.errors)
