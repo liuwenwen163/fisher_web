@@ -4,6 +4,7 @@ from flask import jsonify,request
 from app.forms.book import SearchForm
 from app.libs.helper import is_key_or_isbn
 from app.spider.yushu_book import YuShuBook
+from app.view_models.book import BookViewModel
 from . import web
 
 __author__ = "yc"
@@ -22,32 +23,13 @@ def search():
         page = form.page.data
         key_or_isbn = is_key_or_isbn(q)
         if key_or_isbn == "isbn":
-            result = YuShuBook.get_url_by_isbn(q)
+            result = YuShuBook.search_by_isbn(q)
+            result = BookViewModel.package_single(result, q)
         else:
-            result = YuShuBook.get_url_by_name(q, page)
+            result = YuShuBook.search_by_keyword(q, page)
+            result = BookViewModel.package_collection(result, q)
         return jsonify(result)
     else:
         # flask的视图函数没有return语句是会报错的
         return jsonify(form.errors)
 
-#
-# # 6-13 小节线程隔离对象的测试代码，可删
-# @web.route('/test')
-# def test1():
-#     from flask import request
-#     from test_tmp.tmp_none_local import n
-#     print(n.v)
-#     n.v = 2
-#     print(n.v)
-#     print('--------------------')
-#     print(getattr(request, 'v', 'None Value'))
-#     print(setattr(request, 'v', 100))
-#     print(getattr(request, 'v'))
-#     return ''
-
-# 6-14 验证current_app是否全局只有一个，可删
-@web.route('/test')
-def test1():
-    from flask import current_app,request
-    print(str(id(current_app)) + ',' + str(id(request)))
-    return ''

@@ -8,13 +8,13 @@ class YuShuBook:
     keyword_url = "http://t.yushu.im/v2/book/search?q={}&count={}&start={}"
 
     @classmethod
-    def get_url_by_isbn(cls,isbn):
+    def search_by_isbn(cls, isbn):
         url = cls.isbn_url.format(isbn)
         result = HTTP.get(url)
         return result
 
     @classmethod
-    def get_url_by_name(cls,keyword,page=1):
+    def search_by_keyword(cls, keyword, page=1):
         url = cls.keyword_url.format(keyword, current_app.config['PER_PAGE'], cls.calculate_start(page))
         result = HTTP.get(url)
         return result
