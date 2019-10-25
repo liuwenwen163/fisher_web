@@ -38,3 +38,15 @@ def search():
         # flask的视图函数没有return语句是会报错的
         return jsonify(form.errors)
 
+@web.route('/test')
+def test_jinjia():
+    """
+    jinjia2 语法的测试代码
+    :return:
+    """
+    data = {'total':203, 'name': '', 'age': 18, 'list': ['apple','big','cat']}
+    from flask import flash
+    flash('This is a message.')
+    flash('This is thecond message.')
+    from flask import render_template
+    return render_template('test.html', data=data)
