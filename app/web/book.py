@@ -1,11 +1,12 @@
 # encoding: utf-8
 import json
-from flask import jsonify,request
+from flask import jsonify, request, flash, render_template
 
 from app.forms.book import SearchForm
 from app.libs.helper import is_key_or_isbn
 from app.spider.yushu_book import YuShuBook
 from app.view_models.book import BookCollection
+
 from . import web
 
 __author__ = "yc"
@@ -33,20 +34,15 @@ def search():
             yushu_book.search_by_keyword(q, page)
 
         books.fill(yushu_book, q)
-        return json.dumps(books, default=lambda o: o.__dict__)
     else:
-        # flask的视图函数没有return语句是会报错的
-        return jsonify(form.errors)
+        flash('搜索的关键字不符合要求，请重新输入关键字。')
+    # return 放到外面确保视图函数总有返回结果
+    return render_template('search_result.html', books=books, form=form)
 
-@web.route('/test')
-def test_jinjia():
-    """
-    jinjia2 语法的测试代码
-    :return:
-    """
-    data = {'total':203, 'name': '', 'age': 18, 'list': ['apple','big','cat']}
-    from flask import flash
-    flash('This is a message.')
-    flash('This is thecond message.')
-    from flask import render_template
-    return render_template('test.html', data=data)
+
+@web.route('/book/<isbn>/detail')
+def book_detail(isbn):
+    pass
+
+
+
