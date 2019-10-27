@@ -37,3 +37,8 @@ class YuShuBook:
 
     def calculate_start(self, page):
         return (page-1)*current_app.config['PER_PAGE']
+
+    # 内部封装，良好接口调用，外面可以像调用属性一样获取正确的数据
+    @property
+    def first(self):
+        return self.books[0] if self.total >=1 else None
