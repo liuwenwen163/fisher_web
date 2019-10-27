@@ -1,10 +1,11 @@
 # encoding: utf-8
-from app import db
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 
+from app.models.base import Base
 
-class Gift(db.Model):
+
+class Gift(Base):
     id = Column(Integer, primary_key=True)
     user = relationship('User')  # 和模型User建立关系
     uid = Column(Integer, ForeignKey('user.id'))  # uid是user模型下的id号
