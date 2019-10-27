@@ -3,11 +3,11 @@
 存放book，书籍这个模型
 """
 from sqlalchemy import Column, Integer, String
-from app.models.base import db
+from app.models.base import db, Base
 
 
 # 使用 Flask_SQLAlchemy 操作数据库
-class Book(db.Model):
+class Book(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String(50), nullable=False)
     author = Column(String(30), default='未名')
