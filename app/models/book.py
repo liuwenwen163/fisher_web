@@ -3,9 +3,7 @@
 存放book，书籍这个模型
 """
 from sqlalchemy import Column, Integer, String
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from app.models.base import db
 
 
 # 使用 Flask_SQLAlchemy 操作数据库
