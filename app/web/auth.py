@@ -1,10 +1,10 @@
 """
 所有用户操作的相关视图函数都在这个模块下面
 """
-from flask import render_template, request
+from flask import render_template, request, redirect, url_for
 
 from app import db
-from app.forms.auth import RegisterForm
+from app.forms.auth import RegisterForm, LoginForm
 from app.models.user import User
 from . import web
 
@@ -19,12 +19,16 @@ def register():
         user.set_attrs(form.data)
         db.session.add(user)
         db.session.commit()
+        redirect(url_for('web.login'))
     return render_template('auth/register.html', form=form)
 
 
 @web.route('/login', methods=['GET', 'POST'])
 def login():
-    pass
+    form = LoginForm(request.form)
+    if request.method == 'POST' and form.validate():
+        pass
+    return render_template('auth/login.html',form=)
 
 
 @web.route('/reset/password', methods=['GET', 'POST'])
