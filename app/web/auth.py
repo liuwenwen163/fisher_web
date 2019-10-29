@@ -1,12 +1,13 @@
 """
 所有用户操作的相关视图函数都在这个模块下面
 """
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, flash
 
 from app import db
 from app.forms.auth import RegisterForm, LoginForm
 from app.models.user import User
 from . import web
+from flask_login import login_user
 
 __author__ = '七月'
 
@@ -19,7 +20,7 @@ def register():
         user.set_attrs(form.data)
         db.session.add(user)
         db.session.commit()
-        redirect(url_for('web.login'))
+        return redirect(url_for('web.login'))
     return render_template('auth/register.html', form=form)
 
 
@@ -27,8 +28,16 @@ def register():
 def login():
     form = LoginForm(request.form)
     if request.method == 'POST' and form.validate():
-        pass
-    return render_template('auth/login.html',form=)
+        user = User.query.filter_by(email=form.email.data).first()
+        if user and user.check_password(form.password.data):
+            login_user(user, remember=True)
+            next = request.args.get('next')
+            if not next or not next.startswith('/'):
+                next = url_for('web.index')
+            return redirect(next)
+        else:
+            flash('账号不存在或者密码错误')
+    return render_template('auth/login.html',form=form)
 
 
 @web.route('/reset/password', methods=['GET', 'POST'])
