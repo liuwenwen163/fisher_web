@@ -1,7 +1,7 @@
 # encoding: utf-8
 """
-赠送书籍的礼物模型
-管理要赠送的书籍和赠书人的清单列表
+心愿清单的礼物模型
+心愿书籍和对应想要的人名单
 """
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
@@ -9,7 +9,7 @@ from sqlalchemy.orm import relationship
 from app.models.base import Base
 
 
-class Gift(Base):
+class Wish(Base):
     id = Column(Integer, primary_key=True)
     user = relationship('User')  # 和模型User建立关系
     uid = Column(Integer, ForeignKey('user.id'))  # uid是user模型下的id号
