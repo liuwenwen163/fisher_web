@@ -2,9 +2,14 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import login_manager
+from app.libs.helper import is_key_or_isbn
 from app.models.base import Base
 from sqlalchemy import Column, Integer, String, Boolean, Float
 from flask_login import UserMixin
+
+from app.models.gift import Gift
+from app.models.wish import Wish
+from app.spider.yushu_book import YuShuBook
 
 
 # 创建User的数据模型
@@ -38,6 +43,31 @@ class User(UserMixin, Base):
     def get_id(self):
         return self.id
 
+    def can_save_to_list(self, isbn):
+        # 验证save_to_gift用户传入的isbn是否有效
+        # 第一步：验证isbn是否符合isbn规范
+        if is_key_or_isbn(isbn) != 'isbn':
+            return False
+        yushu_book = YuShuBook()
+        # 第二步：验证根据isbn是否能查到书籍
+        yushu_book.search_by_isbn(isbn)
+        if not yushu_book.first:
+            return False
+        # 第三步：不允许用户“同时”赠送多本相同的图书
+        # 不能同时的含义：如果一本书没有赠送出去，就不能再上传这本书了
+        gifting = Gift.query.filter_by(uid=self.id, isbn=isbn,
+                                       launched=False).first()
+        # 第四步：一个用户不可能同时成为赠送者和索要者
+        wishing = Wish.query.filter_by(uid=self.id, isbn=isbn,
+                                       launched=False).first()
+        # 合并三四步：图书必须要既不在赠送清单，也不在心愿清单才能添加
+        if not gifting and not wishing:
+            return True
+        else:
+            return False
+
 @login_manager.user_loader
 def get_user(uid):
     return User.query.get(uid)
+
+
