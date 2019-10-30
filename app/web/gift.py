@@ -1,3 +1,4 @@
+from flask import flash
 from flask_login import login_required,current_user
 
 from app import db
@@ -16,13 +17,19 @@ def my_gifts():
 @login_required
 def save_to_gifts(isbn):
     # 赠送此书功能的视图函数
-    gift = Gift()
-    gift.isbn = isbn
-    gift.uid = current_user.id
-    current_user.beans += current_user.config['BEANS_UPLOAD_ONE_BOOK ']
-    db.session.add(gift)
-    db.session.commit()
-
+    if current_user.can_save_to_list(isbn):
+        try:
+            gift = Gift()
+            gift.isbn = isbn
+            gift.uid = current_user.id
+            current_user.beans += current_user.config['BEANS_UPLOAD_ONE_BOOK ']
+            db.session.add(gift)
+            db.session.commit()
+        except Exception as e:
+            # 避免commit不成功，影响到后面每一次的数据提交，所以需要回滚
+            db.session.rollback()
+    else:
+        flash('这本书已经存在于你的赠送清单或已存在于你的心愿清单，请不要重复添加')
 
 @web.route('/gifts/<gid>/redraw')
 def redraw_from_gifts(gid):
