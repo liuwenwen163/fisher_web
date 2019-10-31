@@ -2,8 +2,27 @@
 """
 初始化db
 """
-from flask_sqlalchemy import SQLAlchemy
+from contextlib import contextmanager
+
+from flask_sqlalchemy import SQLAlchemy as _SQLAlchemy
 from sqlalchemy import Column, Integer, SmallInteger
+
+
+
+class SQLAlchemy(_SQLAlchemy):
+    """
+    将原来的SQLAlchemy导入时改个名字，继承它
+    继承的基础上添加方法，简化try-except语句的书写重复度
+    """
+    @contextmanager
+    def auto_commit(self):
+        try:
+            yield
+            self.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            raise e
+
 
 db = SQLAlchemy()
 

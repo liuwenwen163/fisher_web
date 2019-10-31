@@ -18,16 +18,12 @@ def my_gifts():
 def save_to_gifts(isbn):
     # 赠送此书功能的视图函数
     if current_user.can_save_to_list(isbn):
-        try:
+        with db.auto_commit():
             gift = Gift()
             gift.isbn = isbn
             gift.uid = current_user.id
             current_user.beans += current_user.config['BEANS_UPLOAD_ONE_BOOK ']
             db.session.add(gift)
-            db.session.commit()
-        except Exception as e:
-            # 避免commit不成功，影响到后面每一次的数据提交，所以需要回滚
-            db.session.rollback()
     else:
         flash('这本书已经存在于你的赠送清单或已存在于你的心愿清单，请不要重复添加')
 

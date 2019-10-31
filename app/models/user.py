@@ -53,8 +53,7 @@ class User(UserMixin, Base):
         yushu_book.search_by_isbn(isbn)
         if not yushu_book.first:
             return False
-        # 第三步：不允许用户“同时”赠送多本相同的图书
-        # 不能同时的含义：如果一本书没有赠送出去，就不能再上传这本书了
+        # 第三步：如果用户有一本书没有赠送出去，就不能再上传这本书了
         gifting = Gift.query.filter_by(uid=self.id, isbn=isbn,
                                        launched=False).first()
         # 第四步：一个用户不可能同时成为赠送者和索要者
