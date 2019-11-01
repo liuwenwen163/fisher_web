@@ -1,11 +1,15 @@
 # encoding: utf-8
 import json
 from flask import jsonify, request, flash, render_template
+from flask_login import current_user
 
 from app.forms.book import SearchForm
 from app.libs.helper import is_key_or_isbn
+from app.models.gift import Gift
+from app.models.wish import Wish
 from app.spider.yushu_book import YuShuBook
 from app.view_models.book import BookCollection, BookViewModel
+from app.view_models.trade import TradeInfo
 
 from . import web
 
@@ -42,11 +46,40 @@ def search():
 
 @web.route('/book/<isbn>/detail')
 def book_detail(isbn):
+    """
+    使用has_in_gifts和has_in_wishes描述三种状态：
+    ①书既不在该用户的礼物清单也不在心愿清单
+    ②书在礼物清单，不在心愿清单
+    ③书在心愿清单，不在礼物清单
+    用户没有登陆，按照既不在赠送清单也不在心愿清单来处理；
+    用户有登录，去Gift和Wish表里做查找，能查找到的话，就说明在对应的清单中
+    :param isbn:
+    :return:
+    """
+    # 根据登录状态来设置书籍情况
+    has_in_gifts = False
+    has_in_wishes = False
+    if current_user.is_authenticated:
+        if Gift.query.filter_by(uid=current_user.id, isbn=isbn, launched=False).all():
+            has_in_gifts = True
+        if Wish.query.filter_by(uid=current_user.id, isbn=isbn, launched=False).all():
+            has_in_wishes = True
+
+    # 取书籍详情数据
     yushu_book = YuShuBook()
     yushu_book.search_by_isbn(isbn)
     book = BookViewModel(yushu_book.first)
-    return render_template('book_detail.html', book=book, wishes=[], gifts=[])
 
+    # 获取全部想要书籍人的清单和赠送人的清单
+    trade_gifts = Gift.query.filter_by(isbn=isbn, launched=False).all()
+    trade_wishes = Wish.query.filter_by(isbn=isbn, launched=False).all()
 
+    # 调用viewModel转化请求到的数据
+    trade_gifts_model = TradeInfo(trade_gifts)
+    trade_wishes_model = TradeInfo(trade_wishes)
 
-
+    return render_template('book_detail.html',
+                           book=book,
+                           wishes=trade_wishes_model, gifts=trade_gifts_model,
+                           has_in_gifts=has_in_gifts,
+                           has_in_wishes=has_in_wishes)
