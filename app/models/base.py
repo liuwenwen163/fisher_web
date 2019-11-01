@@ -2,6 +2,7 @@
 """
 初始化db
 """
+from datetime import datetime
 from contextlib import contextmanager
 
 from flask_sqlalchemy import SQLAlchemy as _SQLAlchemy
@@ -29,8 +30,11 @@ db = SQLAlchemy()
 
 class Base(db.Model):
     __abstract__ = True  # 让base单纯作为基类，不要去创建数据表
-    # create_time = Column('create_time', Integer)
+    create_time = Column('create_time', Integer)
     status = Column(SmallInteger, default=1)
+
+    def __init__(self):
+        self.create_time = int(datetime.now().timestamp())
 
     # 放到base模型的基类，其他继承这个base的都会有这个方法
     def set_attrs(self, attrs_dict):
