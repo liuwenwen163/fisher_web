@@ -56,16 +56,16 @@ def book_detail(isbn):
     :param isbn:
     :return:
     """
-    # 根据登录状态来设置书籍情况
     has_in_gifts = False
     has_in_wishes = False
+    # 判断wish或者gift表格中，是否有wish或gift记录，二者互斥
     if current_user.is_authenticated:
         if Gift.query.filter_by(uid=current_user.id, isbn=isbn, launched=False).all():
             has_in_gifts = True
         if Wish.query.filter_by(uid=current_user.id, isbn=isbn, launched=False).all():
             has_in_wishes = True
 
-    # 取书籍详情数据
+    # 获取书籍详情数据
     yushu_book = YuShuBook()
     yushu_book.search_by_isbn(isbn)
     book = BookViewModel(yushu_book.first)

@@ -5,7 +5,7 @@
 from datetime import datetime
 from contextlib import contextmanager
 
-from flask_sqlalchemy import SQLAlchemy as _SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy as _SQLAlchemy, BaseQuery
 from sqlalchemy import Column, Integer, SmallInteger
 
 
@@ -25,7 +25,22 @@ class SQLAlchemy(_SQLAlchemy):
             raise e
 
 
-db = SQLAlchemy()
+class Query(BaseQuery):
+    def filter_by(self, **kwargs):
+        """
+        对query.filter_by自己添加一个status状态，
+        status=1表示只检索没有软删除的商品
+        :param kwargs:
+        :return:
+        """
+        # 实现自己添加的逻辑
+        if 'status' not in kwargs.keys():
+            kwargs['status'] = 1
+        # 完成原有的filter_by逻辑
+        return super(Query, self).filter_by(**kwargs)
+
+
+db = SQLAlchemy(query_class=Query)  # 用自定义的Query替换原有的Query
 
 
 class Base(db.Model):
