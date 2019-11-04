@@ -41,4 +41,7 @@ class YuShuBook:
     # 内部封装，良好接口调用，外面可以像调用属性一样获取正确的数据
     @property
     def first(self):
+        """
+        :return:返回一组书籍中的第一个信息
+        """
         return self.books[0] if self.total >=1 else None
