@@ -7,7 +7,7 @@ from app import db
 from app.forms.auth import RegisterForm, LoginForm
 from app.models.user import User
 from . import web
-from flask_login import login_user
+from flask_login import login_user, logout_user
 
 __author__ = '七月'
 
@@ -57,4 +57,7 @@ def change_password():
 
 @web.route('/logout')
 def logout():
-    pass
+    # 使用flask_login提供的logout功能进行登出
+    # 本质是清除了浏览器的cookie
+    logout_user()
+    return redirect(url_for('web.index'))
