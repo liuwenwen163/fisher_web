@@ -8,7 +8,6 @@ from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, desc, func
 from sqlalchemy.orm import relationship
 
 from app.models.base import Base, db
-from app.models.wish import Wish
 from app.spider.yushu_book import YuShuBook
 
 
@@ -74,3 +73,6 @@ class Gift(Base):
         # 将返回的元组数据变为字典，外部人调用的时候就可以直接用key来访问了
         count_list = [{'count': w[0], 'isbn': w[1]} for w in count_list]
         return count_list
+
+
+from app.models.wish import Wish
