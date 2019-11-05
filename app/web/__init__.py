@@ -2,9 +2,14 @@
 """
 存放所有的视图函数
 """
-from flask import Blueprint
+from flask import Blueprint, render_template
 
 web = Blueprint("web", __name__)
+
+
+@web.app_errorhandler(404)
+def not_found(e):
+    return render_template('404.html'), 404
 
 # 要在这里导入下注册的视图函数，否则相当于只定义了视图函数，没有引用
 # 注意这里的导入要放到最后，否则还会发生循环导入
