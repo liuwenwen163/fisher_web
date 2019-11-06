@@ -3,7 +3,7 @@
 用户认证的表单处理数据
 """
 from wtforms import Form, StringField, PasswordField
-from wtforms.validators import Length, DataRequired, Email, ValidationError
+from wtforms.validators import Length, DataRequired, Email, ValidationError, EqualTo
 
 from app.models.user import User
 
@@ -39,3 +39,17 @@ class LoginForm(Form):
 class EmailForm(Form):
     email = StringField(validators=[DataRequired(), Length(5, 64),
                                     Email(message='电子邮箱不符合规范')])
+
+
+class ResetPasswordForm(Form):
+    # 新密码
+    password1 = PasswordField(validators=[
+        DataRequired(),
+        Length(6, 32, message='密码长度需要在6到20个字符之间'),
+        EqualTo('password2', message='两次输入的密码不相同')
+    ])
+    # 确认密码
+    password2 = PasswordField(validators=[
+        DataRequired(),
+        Length(6,32)
+    ])
