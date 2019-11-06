@@ -12,6 +12,7 @@ requests = "*"
 wtforms = "*"
 flask-sqlalchemy = "*"
 cymysql = "*"
+flask-mail = "*"
 
 [requires]
 python_version = "3.7"
