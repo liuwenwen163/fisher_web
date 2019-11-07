@@ -101,9 +101,6 @@ class User(UserMixin, Base):
         return True
 
 
-
 @login_manager.user_loader
 def get_user(uid):
     return User.query.get(uid)
-
-
