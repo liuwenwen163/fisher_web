@@ -1,5 +1,6 @@
 from flask import url_for, flash, render_template, request
 from flask_login import login_required, current_user
+from sqlalchemy import desc, or_
 from werkzeug.utils import redirect
 
 from app import db
@@ -8,6 +9,7 @@ from app.libs.email import send_mail
 from app.models.drift import Drift
 from app.models.gift import Gift
 from app.view_models.book import BookViewModel
+from app.view_models.drift import DriftCollection
 from . import web
 
 __author__ = '七月'
@@ -44,6 +46,7 @@ def send_drift(gid):
             '有人想要一本书', 'email/get_gift.html',
             wisher=current_user, gift=current_gift
         )
+        return redirect(url_for('web.pending'))
 
     gifter = current_gift.user.summary
     return render_template('drift.html', gifter=gifter,
@@ -51,8 +54,21 @@ def send_drift(gid):
 
 
 @web.route('/pending')
+@login_required
 def pending():
-    pass
+    """
+    requester_id和gifter_id之间是或关系，
+    筛选出来的记录才是作为赠送者或者是请求人.
+    方法：使用filter结合or_，or括号里面的条件就是或关系
+    :return:
+    """
+    drifts = Drift.query.filter(
+        or_(Drift.requester_id==current_user.id,
+        Drift.gifter_id==current_user.id)
+    ).order_by(desc(Drift.create_time)).all()
+
+    views = DriftCollection(drifts, current_user.id)
+    return render_template('pending.html', drifts=views.data)
 
 
 @web.route('/drift/<int:did>/reject')
