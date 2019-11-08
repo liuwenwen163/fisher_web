@@ -40,7 +40,7 @@ def send_drift(gid):
         save_drift(form, current_gift)
         # 发送一封邮件提醒有人想索要书籍
         send_mail(
-            current_user.email,
+            current_gift.user.email,
             '有人想要一本书', 'email/get_gift.html',
             wisher=current_user, gift=current_gift
         )
