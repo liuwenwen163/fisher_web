@@ -1,13 +1,17 @@
 # encoding: utf-8
+from math import floor
+
 from flask import current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import login_manager
+from app.libs.enums import PendingStatus
 from app.libs.helper import is_key_or_isbn
 from app.models.base import Base, db
 from sqlalchemy import Column, Integer, String, Boolean, Float
 from flask_login import UserMixin
 
+from app.models.drift import Drift
 from app.models.gift import Gift
 from app.models.wish import Wish
 from app.spider.yushu_book import YuShuBook
@@ -99,6 +103,40 @@ class User(UserMixin, Base):
             user = User.query.get(uid)
             user.password = new_password
         return True
+
+    def can_send_drift(self):
+        """
+        1.鱼豆必须足够（大于等于1）
+        2.每索取两本书，必须送出一本书：
+        需要知道目前索取的书籍，和已经成功送出的书籍数量。
+        :return:
+        """
+        # 判断鱼豆是否足够
+        if self.beans < 1:
+            return False
+
+        # 查询成功赠送出的书籍
+        success_gifts_count = Gift.query.filter_by(
+            uid=self.id, launched=True
+        ).count()
+        # 查询成功接受了了多少书籍
+        success_receive_count = Drift.query.filter_by(
+            requester_id=self.id, pending=PendingStatus.Success
+        ).count()
+        return True if \
+            floor(success_receive_count/2) <= floor(success_gifts_count) \
+            else False
+
+    @property
+    def summary(self):
+        return dict(
+            nickname=self.nickname,
+            beans=self.beans,
+            email=self.email,
+            send_recive=str(self.send_counter) + '/' + str(self.receive_counter)
+        )
+
+
 
 
 @login_manager.user_loader

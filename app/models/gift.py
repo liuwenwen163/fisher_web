@@ -74,5 +74,12 @@ class Gift(Base):
         count_list = [{'count': w[0], 'isbn': w[1]} for w in count_list]
         return count_list
 
+    def is_yourself_gift(self, uid):
+        """
+            判断是否是用户的礼物
+        """
+        return True if self.uid == uid else False
+
+
 
 from app.models.wish import Wish
