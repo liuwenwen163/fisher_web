@@ -1,6 +1,6 @@
 # encoding: utf-8
 from .book import BookViewModel
-from collections import namedtuple
+# from collections import namedtuple
 
 # 为了方便序列化，就不使用namedtuple
 # 如果用namedtuple来实现MyGift就是下面的方法：
@@ -9,6 +9,11 @@ from collections import namedtuple
 
 class MyGifts:
     def __init__(self, gifts_of_mine, wish_count_list):
+        """
+
+        :param gifts_of_mine: Gift表中根据用户id号检索出的原始数据
+        :param wish_count_list: 每一种礼物对应的心愿数量
+        """
         self.gifts = []
 
         self.__gifts_of_mine = gifts_of_mine

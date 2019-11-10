@@ -36,5 +36,6 @@ class BookCollection:
         # 接收yushu_book(原始书籍数据)
         self.total = yushu_book.total
         self.keyword = keyword
+        # 调用处理单本书籍的模型填到书籍集合中
         self.books = [BookViewModel(book) for book in yushu_book.books]
 

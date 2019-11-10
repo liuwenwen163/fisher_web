@@ -14,21 +14,22 @@ class PendingStatus(Enum):
     def pending_str(cls, status, key):
         """
         类似switch-case语句，根据status和key的值返回不同的值
+        外部调用status的时候，可以传入枚举的状态
         """
         key_map = {
-            1: {
+            cls.Waiting: {
               'requester': '等待对方邮寄',
               'gifter': '等待你邮寄'
             },
-            3: {
+            cls.Reject: {
                 'requester': '对方已拒绝',
                 'gifter': '你已拒绝'
             },
-            4: {
+            cls.Redraw: {
                 'requester': '你已撤销',
                 'gifter': '对方已撤销'
             },
-            2: {
+            cls.Success: {
                 'requester': '对方已邮寄',
                 'gifter': '你已邮寄，交易完成'
             },

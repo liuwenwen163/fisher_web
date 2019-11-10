@@ -6,6 +6,7 @@ from werkzeug.utils import redirect
 from app import db
 from app.forms.book import DriftForm
 from app.libs.email import send_mail
+from app.libs.enums import PendingStatus
 from app.models.drift import Drift
 from app.models.gift import Gift
 from app.view_models.book import BookViewModel
@@ -77,8 +78,17 @@ def reject_drift(did):
 
 
 @web.route('/drift/<int:did>/redraw')
+@login_required
 def redraw_drift(did):
-    pass
+    """
+    撤销drift
+    :param did: drift 的 id 号
+    :return:
+    """
+    with db.auto_commit():
+        drift = Drift.query.filter(Drift.id == did).first_or_404()
+        drift.pending = PendingStatus.Redraw
+    return redirect(url_for('web.pending'))
 
 
 @web.route('/drift/<int:did>/mailed')
