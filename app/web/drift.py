@@ -9,6 +9,7 @@ from app.libs.email import send_mail
 from app.libs.enums import PendingStatus
 from app.models.drift import Drift
 from app.models.gift import Gift
+from app.models.user import User
 from app.view_models.book import BookViewModel
 from app.view_models.drift import DriftCollection
 from . import web
@@ -73,8 +74,17 @@ def pending():
 
 
 @web.route('/drift/<int:did>/reject')
+@login_required
 def reject_drift(did):
-    pass
+    with db.auto_commit():
+        drift = Drift.query.filter(
+            Gift.uid == current_user.id,
+            Drift.id == did
+        ).first_or_404()
+        drift.pending = PendingStatus.Reject
+        requester = User.query.get_or_404(drift.requester_id)
+        requester.beans += 1
+    return redirect(url_for('web.pending'))
 
 
 @web.route('/drift/<int:did>/redraw')
@@ -86,8 +96,10 @@ def redraw_drift(did):
     :return:
     """
     with db.auto_commit():
-        drift = Drift.query.filter(Drift.id == did).first_or_404()
+        drift = Drift.query.filter_by(
+            requester_id=current_user.id, id=did).first_or_404()
         drift.pending = PendingStatus.Redraw
+        current_user.beans += 1
     return redirect(url_for('web.pending'))
 
 
@@ -106,7 +118,7 @@ def save_drift(drift_form, current_gift):
         drift.requester_id = current_user.id
         drift.requester_nickname = current_user.nickname
         drift.gifter_nickname = current_gift.user.nickname
-        drift.gifter_id = current_gift.id
+        drift.gifter_id = current_gift.user.id
 
         # book原本是字典，需要通过字典的方式来访问
         # 为了保证调用的统一性将current_gift获取到的数据

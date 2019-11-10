@@ -20,7 +20,7 @@ class Drift(Base):
     # 书籍信息
     isbn = Column(String(13))
     book_title = Column(String(50))
-    book_author = Column(String(30))
+    book_author = Column(String(100))
     book_img = Column(String(50))
 
     # 请求者信息
