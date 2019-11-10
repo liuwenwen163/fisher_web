@@ -10,6 +10,7 @@ from app.libs.enums import PendingStatus
 from app.models.drift import Drift
 from app.models.gift import Gift
 from app.models.user import User
+from app.models.wish import Wish
 from app.view_models.book import BookViewModel
 from app.view_models.drift import DriftCollection
 from . import web
@@ -76,6 +77,7 @@ def pending():
 @web.route('/drift/<int:did>/reject')
 @login_required
 def reject_drift(did):
+    """拒绝用户请求"""
     with db.auto_commit():
         drift = Drift.query.filter(
             Gift.uid == current_user.id,
@@ -104,8 +106,33 @@ def redraw_drift(did):
 
 
 @web.route('/drift/<int:did>/mailed')
+@login_required
 def mailed_drift(did):
-    pass
+    """
+    已邮寄视图函数
+    修改gift和drift的launched状态，
+    下面用到了两种方法，两种方法的效果是一样的
+    """
+    with db.auto_commit():
+        drift = Drift.query.filter_by(
+            gifter_id=current_user.id, id=did
+        ).first_or_404()
+        drift.pending = PendingStatus.Success
+        current_user.beans += 1
+
+        # 方法一：使用对象赋值的方式修改状态
+        # 将gift的launched设置为True，表示礼物已赠送
+        gift = Gift.query.filter_by(id=drift.gift_id).first_or_404()
+        gift.launched = True
+
+        # 方法二：使用sqlalchemy的update的方法
+        # 将drift的心愿设置为True，表示心愿以达成，心愿清单中对应的数据就没有了
+        Wish.query.filter_by(
+            isbn=drift.isbn,
+            uid=drift.requester_id,
+            launched=False
+        ).update({Wish.launched: True})
+    return redirect(url_for('web.pending'))
 
 def save_drift(drift_form, current_gift):
     with db.auto_commit():
